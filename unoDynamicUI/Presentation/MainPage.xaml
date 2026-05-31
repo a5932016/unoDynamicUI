@@ -33,11 +33,22 @@
            MinHeight="280"
            FontFamily="Consolas" />
 
-        <Button Content="Open Template Page (From JSON)"
-            Command="{Binding OpenTemplatePage}" />
+        <StackPanel Orientation="Horizontal"
+            Spacing="12">
+          <Button Content="Open Dialog (From JSON)"
+              Command="{Binding OpenTemplateDialog}" />
+        </StackPanel>
 
         <TextBlock Text="{Binding BuildMessage}"
            TextWrapping="WrapWholeWords" />
+
+        <TextBlock Text="{Binding LastAction}" />
+
+        <TextBox Text="{Binding LastSavedValues, Mode=OneWay}"
+           IsReadOnly="True"
+           AcceptsReturn="True"
+           TextWrapping="Wrap"
+           MinHeight="120" />
       </StackPanel>
     </Grid>
   </ScrollViewer>

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace unoDynamicUI.Presentation;
 
 public partial class MainViewModel : ObservableObject
@@ -16,10 +18,12 @@ public partial class MainViewModel : ObservableObject
         Title += $" - {appInfo?.Value?.Environment}";
 
         JsonTemplate = CreateDefaultTemplateJson();
-        BuildMessage = "Ready. Click Open Template Page to test your JSON.";
+        BuildMessage = "Ready. Use JSON to open Dialog or Popup Page.";
+        LastAction = "No action yet.";
+        LastSavedValues = "{}";
 
         GoToSecond = new AsyncRelayCommand(GoToSecondView);
-        OpenTemplatePage = new AsyncRelayCommand(OpenTemplatePageAsync);
+        OpenTemplateDialog = new RelayCommand(OpenTemplateDialogView);
     }
 
     public string? Title { get; }
@@ -33,27 +37,63 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string buildMessage = string.Empty;
 
+    [ObservableProperty]
+    private string lastAction = string.Empty;
+
+    [ObservableProperty]
+    private string lastSavedValues = string.Empty;
+
     public ICommand GoToSecond { get; }
 
-    public ICommand OpenTemplatePage { get; }
+    public ICommand OpenTemplateDialog { get; }
+
+    public event EventHandler<DynamicTemplateRequestedEventArgs>? TemplateDialogRequested;
 
     private async Task GoToSecondView()
     {
         await _navigator.NavigateViewModelAsync<SecondViewModel>(this, data: new Entity(Name ?? string.Empty));
     }
 
-    private async Task OpenTemplatePageAsync()
+    private void OpenTemplateDialogView()
     {
-        if (string.IsNullOrWhiteSpace(JsonTemplate))
+      if (!TryBuildTemplateViewModel(out var viewModel))
         {
-            BuildMessage = "JSON template cannot be empty.";
             return;
         }
 
-        BuildMessage = "Opening dynamic template page from JSON...";
-        await _navigator.NavigateViewModelAsync<DynamicTemplateViewModel>(
-            this,
-            data: new DynamicTemplateRequest(JsonTemplate));
+      BuildMessage = "Opening dynamic form dialog from JSON...";
+      TemplateDialogRequested?.Invoke(this, new DynamicTemplateRequestedEventArgs(viewModel));
+    }
+
+    private bool TryBuildTemplateViewModel(out DynamicTemplateViewModel viewModel)
+    {
+      if (string.IsNullOrWhiteSpace(JsonTemplate))
+      {
+        BuildMessage = "JSON template cannot be empty.";
+        viewModel = new DynamicTemplateViewModel(new DynamicTemplateRequest("{\"fields\":[]}"));
+        return false;
+      }
+
+      viewModel = new DynamicTemplateViewModel(new DynamicTemplateRequest(JsonTemplate));
+      viewModel.Confirmed += OnTemplateConfirmed;
+      viewModel.Cancelled += OnTemplateCancelled;
+      return true;
+    }
+
+    private void OnTemplateConfirmed(object? sender, IReadOnlyDictionary<string, object?> values)
+    {
+      LastAction = "Confirm clicked.";
+      LastSavedValues = JsonSerializer.Serialize(values, new JsonSerializerOptions
+      {
+        WriteIndented = true
+      });
+      BuildMessage = "Confirm event triggered and values saved.";
+    }
+
+    private void OnTemplateCancelled(object? sender, EventArgs e)
+    {
+      LastAction = "Cancel clicked.";
+      BuildMessage = "Cancel event triggered.";
     }
 
     private static string CreateDefaultTemplateJson()
