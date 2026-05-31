@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace unoDynamicUI.Presentation;
 
 public partial class MainViewModel : ObservableObject
@@ -17,16 +15,11 @@ public partial class MainViewModel : ObservableObject
         Title += $" - {localizer["ApplicationName"]}";
         Title += $" - {appInfo?.Value?.Environment}";
 
-        JsonDefinition = CreateDefaultJsonDefinition();
-        LastDialogAction = "No action yet.";
-        LastDialogValues = "{}";
-        FormBuildMessage = "Ready.";
+        JsonTemplate = CreateDefaultTemplateJson();
+        BuildMessage = "Ready. Click Open Template Page to test your JSON.";
 
         GoToSecond = new AsyncRelayCommand(GoToSecondView);
-        OpenJsonDialog = new RelayCommand(OpenJsonDialogView);
-        OpenModelDialog = new RelayCommand(OpenModelDialogView);
-        OpenJsonPage = new AsyncRelayCommand(OpenJsonPageViewAsync);
-        OpenModelPage = new AsyncRelayCommand(OpenModelPageViewAsync);
+        OpenTemplatePage = new AsyncRelayCommand(OpenTemplatePageAsync);
     }
 
     public string? Title { get; }
@@ -35,157 +28,82 @@ public partial class MainViewModel : ObservableObject
     private string? name;
 
     [ObservableProperty]
-    private string jsonDefinition = string.Empty;
+    private string jsonTemplate = string.Empty;
 
     [ObservableProperty]
-    private string lastDialogAction = string.Empty;
-
-    [ObservableProperty]
-    private string lastDialogValues = string.Empty;
-
-    [ObservableProperty]
-    private string formBuildMessage = string.Empty;
+    private string buildMessage = string.Empty;
 
     public ICommand GoToSecond { get; }
 
-    public ICommand OpenJsonDialog { get; }
-
-    public ICommand OpenModelDialog { get; }
-
-    public ICommand OpenJsonPage { get; }
-
-    public ICommand OpenModelPage { get; }
-
-    public event EventHandler<DynamicFormDialogRequestEventArgs>? DynamicDialogRequested;
+    public ICommand OpenTemplatePage { get; }
 
     private async Task GoToSecondView()
     {
         await _navigator.NavigateViewModelAsync<SecondViewModel>(this, data: new Entity(Name ?? string.Empty));
     }
 
-    private void OpenJsonDialogView()
+    private async Task OpenTemplatePageAsync()
     {
-        if (!TryBuildDefinitionFromJson(out var definition))
+        if (string.IsNullOrWhiteSpace(JsonTemplate))
         {
+            BuildMessage = "JSON template cannot be empty.";
             return;
         }
 
-        ShowDialog(definition);
+        BuildMessage = "Opening dynamic template page from JSON...";
+        await _navigator.NavigateViewModelAsync<DynamicTemplateViewModel>(
+            this,
+            data: new DynamicTemplateRequest(JsonTemplate));
     }
 
-    private void OpenModelDialogView()
-    {
-        var definition = BuildModelDefinition();
-        ShowDialog(definition);
-    }
-
-    private async Task OpenJsonPageViewAsync()
-    {
-        if (!TryBuildDefinitionFromJson(out var definition))
-        {
-            return;
-        }
-
-        FormBuildMessage = "JSON page generated.";
-        await _navigator.NavigateViewModelAsync<DynamicFormPageViewModel>(this, data: new DynamicFormRequest(definition));
-    }
-
-    private async Task OpenModelPageViewAsync()
-    {
-        var definition = BuildModelDefinition();
-        FormBuildMessage = "Model page generated.";
-        await _navigator.NavigateViewModelAsync<DynamicFormPageViewModel>(this, data: new DynamicFormRequest(definition));
-    }
-
-    private bool TryBuildDefinitionFromJson(out DynamicFormDefinition definition)
-    {
-        try
-        {
-            definition = DynamicFormDefinitionFactory.FromJson(JsonDefinition);
-            FormBuildMessage = "JSON form generated.";
-            return true;
-        }
-        catch (Exception ex)
-        {
-            definition = new DynamicFormDefinition();
-            FormBuildMessage = $"JSON parse failed: {ex.Message}";
-            return false;
-        }
-    }
-
-    private static DynamicFormDefinition BuildModelDefinition()
-    {
-        var sampleModel = new SampleProfileInputModel
-        {
-            FullName = "Alex Lee",
-            Age = 28,
-            Email = "alex@example.com",
-            AcceptTerms = false
-        };
-
-        return DynamicFormDefinitionFactory.FromModel(sampleModel, "Model Generated Form");
-    }
-
-    private void ShowDialog(DynamicFormDefinition definition)
-    {
-        var formViewModel = new DynamicFormViewModel(definition);
-
-        formViewModel.Confirmed += (_, args) =>
-        {
-            LastDialogAction = "Confirm clicked.";
-            LastDialogValues = JsonSerializer.Serialize(args.Values, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-            FormBuildMessage = "Dialog confirm event fired.";
-        };
-
-        formViewModel.Cancelled += (_, _) =>
-        {
-            LastDialogAction = "Cancel clicked.";
-            FormBuildMessage = "Dialog cancel event fired.";
-        };
-
-        DynamicDialogRequested?.Invoke(this, new DynamicFormDialogRequestEventArgs(formViewModel));
-    }
-
-    private static string CreateDefaultJsonDefinition()
+    private static string CreateDefaultTemplateJson()
     {
         return """
                {
-                 "title": "JSON Generated Form",
+                 "title": "Employee Profile Template",
                  "fields": [
                    {
-                     "key": "fullName",
-                     "label": "Full Name",
-                     "placeholder": "Type your full name",
-                     "type": "text",
-                     "isRequired": true,
+                     "key": "employeeName",
+                     "label": "Employee Name",
+                     "type": "input",
+                     "placeholder": "Type employee name",
+                     "required": true,
                      "minLength": 2,
                      "maxLength": 40
                    },
                    {
-                     "key": "age",
-                     "label": "Age",
-                     "placeholder": "18 to 60",
+                     "key": "department",
+                     "label": "Department",
+                     "type": "select",
+                     "required": true,
+                     "options": ["Engineering", "Design", "HR", "Finance"]
+                   },
+                   {
+                     "key": "salary",
+                     "label": "Monthly Salary",
                      "type": "number",
-                     "isRequired": true,
-                     "min": 18,
-                     "max": 60
+                     "placeholder": "30000 to 200000",
+                     "required": true,
+                     "min": 30000,
+                     "max": 200000
                    },
                    {
-                     "key": "email",
-                     "label": "Email",
-                     "placeholder": "name@example.com",
-                     "type": "text",
-                     "regexPattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+                     "key": "startDate",
+                     "label": "Start Date",
+                     "type": "date",
+                     "required": true
                    },
                    {
-                     "key": "note",
-                     "label": "Note",
-                     "placeholder": "Optional note",
-                     "type": "multilineText",
-                     "maxLength": 200
+                     "key": "isRemote",
+                     "label": "Remote Work",
+                     "type": "checkbox"
+                   },
+                   {
+                     "key": "resume",
+                     "label": "Resume File",
+                     "type": "filePicker",
+                     "required": true,
+                     "accept": [".pdf", ".docx"]
                    }
                  ]
                }

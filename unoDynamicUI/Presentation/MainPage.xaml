@@ -17,7 +17,7 @@
           HorizontalAlignment="Stretch"
           Spacing="16"
           MaxWidth="920">
-        <TextBlock Text="Current navigation demo"
+        <TextBlock Text="Basic navigation demo"
            FontWeight="SemiBold" />
         <TextBox Text="{Binding Name, Mode=TwoWay}"
             PlaceholderText="Enter your name:" />
@@ -25,42 +25,19 @@
             AutomationProperties.AutomationId="SecondPageButton"
             Command="{Binding GoToSecond}" />
 
-        <TextBlock Text="Dynamic form JSON definition"
+        <TextBlock Text="Dynamic template JSON"
            FontWeight="SemiBold" />
-        <TextBox Text="{Binding JsonDefinition, Mode=TwoWay}"
+        <TextBox Text="{Binding JsonTemplate, Mode=TwoWay}"
            AcceptsReturn="True"
            TextWrapping="Wrap"
            MinHeight="280"
            FontFamily="Consolas" />
 
-        <StackPanel Orientation="Horizontal"
-            Spacing="12">
-          <Button Content="Open JSON Dialog"
-            Command="{Binding OpenJsonDialog}" />
-          <Button Content="Open JSON Page"
-            Command="{Binding OpenJsonPage}" />
-        </StackPanel>
+        <Button Content="Open Template Page (From JSON)"
+            Command="{Binding OpenTemplatePage}" />
 
-        <StackPanel Orientation="Horizontal"
-            Spacing="12">
-          <Button Content="Open Model Dialog"
-            Command="{Binding OpenModelDialog}" />
-          <Button Content="Open Model Page"
-            Command="{Binding OpenModelPage}" />
-        </StackPanel>
-
-        <TextBlock Text="{Binding FormBuildMessage}"
+        <TextBlock Text="{Binding BuildMessage}"
            TextWrapping="WrapWholeWords" />
-
-        <TextBlock Text="Dialog Last Action"
-           FontWeight="SemiBold" />
-        <TextBlock Text="{Binding LastDialogAction}" />
-
-        <TextBox Text="{Binding LastDialogValues, Mode=OneWay}"
-           IsReadOnly="True"
-           AcceptsReturn="True"
-           TextWrapping="Wrap"
-           MinHeight="140" />
       </StackPanel>
     </Grid>
   </ScrollViewer>

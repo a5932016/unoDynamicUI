@@ -96,7 +96,7 @@ public partial class App : Application
             new ViewMap(ViewModel: typeof(ShellViewModel)),
             new ViewMap<MainPage, MainViewModel>(),
             new DataViewMap<SecondPage, SecondViewModel, Entity>(),
-            new DataViewMap<DynamicFormPage, DynamicFormPageViewModel, DynamicFormRequest>()
+            new DataViewMap<DynamicTemplatePage, DynamicTemplateViewModel, DynamicTemplateRequest>()
         );
 
         routes.Register(
@@ -105,7 +105,7 @@ public partial class App : Application
                 [
                     new ("Main", View: views.FindByViewModel<MainViewModel>(), IsDefault:true),
                     new ("Second", View: views.FindByViewModel<SecondViewModel>()),
-                    new ("DynamicForm", View: views.FindByViewModel<DynamicFormPageViewModel>()),
+                    new ("DynamicTemplate", View: views.FindByViewModel<DynamicTemplateViewModel>()),
                 ]
             )
         );

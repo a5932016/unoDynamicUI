@@ -1,0 +1,55 @@
+<Page x:Class="unoDynamicUI.Presentation.DynamicForms.DynamicTemplatePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:utu="using:Uno.Toolkit.UI"
+      mc:Ignorable="d"
+      Background="{ThemeResource BackgroundBrush}">
+
+  <ScrollViewer IsTabStop="True">
+    <Grid utu:SafeArea.Insets="VisibleBounds">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <utu:NavigationBar Content="Dynamic Template Page" />
+
+      <StackPanel Grid.Row="1"
+            Margin="16"
+            Spacing="12"
+            MaxWidth="980">
+        <TextBlock Text="Template JSON (edit and click Reload JSON)"
+             FontWeight="SemiBold" />
+
+        <TextBox Text="{Binding JsonTemplate, Mode=TwoWay}"
+           AcceptsReturn="True"
+           TextWrapping="Wrap"
+           FontFamily="Consolas"
+           MinHeight="260" />
+
+        <Button Content="Reload JSON"
+            Command="{Binding LoadFromJsonCommand}" />
+
+        <Border BorderThickness="1"
+            CornerRadius="8"
+            BorderBrush="{ThemeResource ControlStrongStrokeColorDefaultBrush}">
+          <ContentControl x:Name="TemplateHost" />
+        </Border>
+
+        <TextBlock Text="{Binding StatusMessage}"
+             TextWrapping="WrapWholeWords" />
+
+        <TextBlock Text="{Binding LastAction}"
+             FontWeight="SemiBold" />
+
+        <TextBox Text="{Binding SavedValuesJson, Mode=OneWay}"
+           IsReadOnly="True"
+           AcceptsReturn="True"
+           TextWrapping="Wrap"
+           MinHeight="120" />
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</Page>
