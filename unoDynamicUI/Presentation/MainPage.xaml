@@ -1,0 +1,67 @@
+﻿<Page x:Class="unoDynamicUI.Presentation.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:utu="using:Uno.Toolkit.UI"
+      NavigationCacheMode="Required"
+      Background="{ThemeResource BackgroundBrush}">
+  <ScrollViewer IsTabStop="True">
+    <Grid utu:SafeArea.Insets="VisibleBounds">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition />
+      </Grid.RowDefinitions>
+      <utu:NavigationBar Content="{Binding Title}" />
+
+      <StackPanel Grid.Row="1"
+          Margin="16"
+          HorizontalAlignment="Stretch"
+          Spacing="16"
+          MaxWidth="920">
+        <TextBlock Text="Current navigation demo"
+           FontWeight="SemiBold" />
+        <TextBox Text="{Binding Name, Mode=TwoWay}"
+            PlaceholderText="Enter your name:" />
+        <Button Content="Go to Second Page"
+            AutomationProperties.AutomationId="SecondPageButton"
+            Command="{Binding GoToSecond}" />
+
+        <TextBlock Text="Dynamic form JSON definition"
+           FontWeight="SemiBold" />
+        <TextBox Text="{Binding JsonDefinition, Mode=TwoWay}"
+           AcceptsReturn="True"
+           TextWrapping="Wrap"
+           MinHeight="280"
+           FontFamily="Consolas" />
+
+        <StackPanel Orientation="Horizontal"
+            Spacing="12">
+          <Button Content="Open JSON Dialog"
+            Command="{Binding OpenJsonDialog}" />
+          <Button Content="Open JSON Page"
+            Command="{Binding OpenJsonPage}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal"
+            Spacing="12">
+          <Button Content="Open Model Dialog"
+            Command="{Binding OpenModelDialog}" />
+          <Button Content="Open Model Page"
+            Command="{Binding OpenModelPage}" />
+        </StackPanel>
+
+        <TextBlock Text="{Binding FormBuildMessage}"
+           TextWrapping="WrapWholeWords" />
+
+        <TextBlock Text="Dialog Last Action"
+           FontWeight="SemiBold" />
+        <TextBlock Text="{Binding LastDialogAction}" />
+
+        <TextBox Text="{Binding LastDialogValues, Mode=OneWay}"
+           IsReadOnly="True"
+           AcceptsReturn="True"
+           TextWrapping="Wrap"
+           MinHeight="140" />
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</Page>

@@ -1,0 +1,10 @@
+{
+  "background_color": "#ffffff",
+  "description": "unoDynamicUI",
+  "display": "standalone",
+  "name": "unoDynamicUI",
+  "short_name": "unoDynamicUI",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}
